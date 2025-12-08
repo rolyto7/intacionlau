@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Graduación Laura Alejandra</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* Estilos Base */
+        html, body {
+            margin: 0; padding: 0;
+            font-family: 'Montserrat', sans-serif;
+            background-color: #050505; color: #F5F5DC;
+            overflow: hidden; height: 100%; width: 100%;
+        }
+
+        .font-script { font-family: 'Great Vibes', cursive; }
+        .font-serif { font-family: 'Playfair Display', serif; }
+
+        /* Contenedor con Scroll */
+        #app-container {
+            position: relative; width: 100%; height: 100%;
+            max-width: 500px; margin: 0 auto; background: #000;
+            overflow-y: scroll; scroll-snap-type: y mandatory; scroll-behavior: smooth;
+            scrollbar-width: none;
+        }
+        #app-container::-webkit-scrollbar { display: none; }
+
+        /* CORRECCIÓN: Fondo Sticky que sigue al scroll */
+        #background-wrapper {
+            position: sticky; top: 0; left: 0;
+            width: 100%; height: 100dvh;
+            z-index: 0; overflow: hidden; pointer-events: none;
+            margin-bottom: -100dvh; /* Permite que las secciones suban y lo cubran */
+        }
+
+        #canvas-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; }
+
+        .bg-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0; background-size: cover; background-position: center;
+            transition: opacity 1.2s ease; opacity: 0;
+        }
+        .bg-layer.active { opacity: 1; }
+
+        /* Imágenes de Fondo */
+        .bg-img-1 { background-image: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 27, 75, 0.8)), url('https://images.unsplash.com/photo-1536152470836-b943b246224c?q=80&w=1938&auto=format&fit=crop'); animation: pan-slow 60s linear infinite alternate; }
+        .bg-img-2 { background-image: linear-gradient(135deg, rgba(46, 16, 101, 0.85), rgba(15, 23, 42, 0.9)), url('https://images.unsplash.com/photo-1519751138087-5bf79df62d58?q=80&w=2070&auto=format&fit=crop'); animation: pan-slow 60s linear infinite alternate-reverse; }
+        .bg-img-3 { background-image: linear-gradient(to bottom, rgba(10, 25, 47, 0.9), rgba(0, 0, 0, 0.85)), url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=2070&auto=format&fit=crop'); background-position: bottom center; animation: pan-slow 80s linear infinite alternate; }
+        .bg-img-4 { background-image: radial-gradient(circle at bottom, rgba(88, 28, 135, 0.85), rgba(15, 23, 42, 0.9), rgba(0, 0, 0, 1)), url('https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=2070&auto=format&fit=crop'); animation: pan-slow 60s linear infinite alternate-reverse; }
+
+        @keyframes pan-slow { 0% { background-position: 0% 0%; } 100% { background-position: 100% 50%; } }
+
+        /* Secciones */
+        .section {
+            position: relative; width: 100%; height: 100dvh; min-height: 100dvh;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            text-align: center; padding: 1.5rem; z-index: 10;
+            scroll-snap-align: start; scroll-snap-stop: always;
+            opacity: 0; transform: scale(0.95); filter: blur(5px);
+            transition: opacity 1.0s ease, transform 1.0s cubic-bezier(0.2, 0.8, 0.2, 1), filter 1.0s ease;
+        }
+        .section.active { opacity: 1; transform: scale(1); filter: blur(0); }
+
+        /* Animaciones */
+        .animate-up { opacity: 0; transform: translateY(30px); transition: all 1.2s cubic-bezier(0.22, 1, 0.36, 1); }
+        .section.active .animate-up { opacity: 1; transform: translateY(0); }
+        .animate-scale { opacity: 0; transform: scale(0.9); transition: all 1.2s cubic-bezier(0.22, 1, 0.36, 1); }
+        .section.active .animate-scale { opacity: 1; transform: scale(1); }
+        .delay-100 { transition-delay: 0.1s; } .delay-200 { transition-delay: 0.2s; }
+        .delay-300 { transition-delay: 0.3s; } .delay-500 { transition-delay: 0.5s; } .delay-700 { transition-delay: 0.7s; }
+
+        /* Colores */
+        .text-gold { background: linear-gradient(to bottom right, #F9E58C, #D4AF37, #debb46, #EAC968); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
+        .text-cream { color: #F5F5DC; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
+        .text-cream-dim { color: rgba(245, 245, 220, 0.7); }
+
+        /* Componentes */
+        .btn-gold {
+            position: relative; overflow: hidden;
+            background: linear-gradient(to bottom, #F9E58C 0%, #D4AF37 40%, #AA8925 100%);
+            color: #1a1a00; border: 1px solid #FFF8DC;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.855);
+            transition: all 0.3s ease; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+        }
+        .btn-gold:hover { transform: translateY(-2px); filter: brightness(1.1); }
+
+        .photo-frame {
+            position: relative; width: 100%; height: 100%; border-radius: 50%; padding: 5px;
+            background: linear-gradient(135deg, #F9E58C, #D4AF37, #996515);
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.5); animation: float-intense 6s ease-in-out infinite;
+        }
+        .photo-frame img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; border: 3px solid #000; }
+        .photo-frame-container { position: relative; width: 220px; height: 220px; margin: 0 auto; }
+
+        .info-card {
+            background: rgba(10, 10, 20, 0.6); backdrop-filter: blur(12px);
+            border: 1px solid rgba(212, 175, 55, 0.704); border-radius: 20px; padding: 1.5rem; width: 100%;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+        }
+        .info-item { margin-bottom: 1.2rem; padding-bottom: 1.2rem; border-bottom: 1px solid rgba(212, 175, 55, 0.2); }
+        .info-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .icon-gold { color: #EAC968; filter: drop-shadow(0 0 5px rgba(212, 175, 55, 0.944)); }
+        
+        .icon-pulse { animation: pulse-soft 3s infinite ease-in-out; }
+        @keyframes pulse-soft { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.8; } }
+        @keyframes float-intense { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+
+        /* UI */
+        #start-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100dvh; z-index: 100; background: rgba(5,5,5,0.98); display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .ui-controls { position: fixed; bottom: 20px; right: 20px; z-index: 90; }
+        .scroll-hint { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 80; color: #F9E58C; opacity: 0; animation: bounce 2s infinite; pointer-events: none; display: flex; flex-direction: column; align-items: center; font-size: 0.75rem; transition: opacity 0.5s; }
+        @keyframes bounce { 0%, 100% {transform: translateX(-50%) translateY(0);} 50% {transform: translateX(-50%) translateY(10px);} }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        
+        <!-- FONDO FIJO (Sticky para que no scrollee) -->
+        <div id="background-wrapper">
+            <div class="bg-layer bg-img-1" id="bg-1"></div>
+            <div class="bg-layer bg-img-2" id="bg-2"></div>
+            <div class="bg-layer bg-img-3" id="bg-3"></div>
+            <div class="bg-layer bg-img-4" id="bg-4"></div>
+            <canvas id="canvas-bg"></canvas>
+        </div>
+
+        <audio id="bg-music" loop>
+            <source src="https://cdn.pixabay.com/download/audio/2022/10/14/audio_9939f792cb.mp3?filename=soft-piano-123982.mp3" type="audio/mpeg">
+        </audio>
+
+        <!-- PANTALLA INICIO -->
+        <div id="start-screen" class="transition-opacity duration-1000">
+            <div class="mb-8 icon-pulse">
+                <i data-lucide="graduation-cap" class="w-24 h-24 text-gold mx-auto"></i>
+            </div>
+            <!-- CAMBIO AQUÍ: Fuente script (cursiva) y color dorado -->
+            <h1 class="font-script text-6xl text-gold mb-6 tracking-wide text-center leading-tight p-2">
+                Invitación al Acto de<br>Promoción
+            </h1>
+            <p class="text-cream-dim text-sm mb-10 font-light tracking-widest uppercase text-center px-4">De: Laura Alejandra</p>
+            <button onclick="startExperience()" class="btn-gold px-12 py-4 rounded-full text-sm cursor-pointer z-50 relative">
+                ABRIR INVITACIÓN
+            </button>
+        </div>
+
+        <div class="ui-controls" style="display: none;" id="music-control">
+            <button onclick="toggleMusic()" class="bg-black/40 p-3 rounded-full text-cream border border-gold/30 backdrop-blur-md hover:bg-white/10 transition">
+                <i id="music-icon" data-lucide="volume-2" class="w-6 h-6"></i>
+            </button>
+        </div>
+        
+        <div class="scroll-hint" id="scroll-hint">
+            <span class="mb-1 tracking-widest uppercase">Desliza</span>
+            <i data-lucide="chevron-down" class="w-5 h-5"></i>
+        </div>
+
+        <!-- SECCIONES -->
+        <section class="section" id="sec-1">
+            <div class="animate-scale icon-pulse mb-6">
+                <i data-lucide="users" class="w-10 h-10 mx-auto icon-gold"></i>
+            </div>
+            <h2 class="font-serif text-4xl md:text-5xl mb-6 text-gold animate-up delay-100 font-bold leading-tight">
+                Fermina Torrez<br><span class="text-3xl font-light text-cream">&</span><br>Roly Lázaro
+            </h2>
+            <div class="w-16 h-[2px] bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent mx-auto my-8 animate-scale delay-200"></div>
+            <p class="font-serif text-xl text-cream animate-up delay-300 max-w-sm leading-relaxed font-light">
+                Tienen el agrado de invitarte a la Graduación de su querida hija:
+            </p>
+        </section>
+
+        <section class="section" id="sec-2">
+            <div class="photo-frame-container animate-scale mb-8">
+                <div class="photo-frame">
+                    <img src="https://i.postimg.cc/kgYD1tRJ/FOTO_LAU.png" alt="Laura Alejandra">
+                </div>
+            </div>
+            <h1 class="font-script text-5xl md:text-6xl text-gold mb-4 animate-up delay-200 px-2 leading-none py-2">
+                Laura Alejandra<br>Careaga Torrez<br>
+            </h1>
+            <div class="mt-8 animate-up delay-500">
+                <span class="inline-block border border-[#D4AF37] bg-black/40 backdrop-blur-sm px-8 py-2 rounded-full text-lg uppercase tracking-[0.2em] text-cream font-medium shadow-[0_0_15px_rgba(212,175,55,0.3)]">
+                    U.E. ADELA ZAMUDIO "A"
+                </span>
+            </div>
+        </section>
+
+        <section class="section" id="sec-3">
+            <h2 class="font-script text-5xl text-gold mb-8 animate-up">Detalles del Evento</h2>
+            <div class="info-card animate-up delay-200 text-left relative z-20">
+                <div class="info-item flex items-start space-x-4">
+                    <div class="p-2 rounded-full icon-gold"><i data-lucide="calendar" class="w-6 h-6"></i></div>
+                    <div>
+                        <p class="text-xs text-[#D4AF37] uppercase tracking-widest font-bold mb-1">Fecha</p>
+                        <p class="font-serif text-xl text-cream font-medium">Sábado, 13 de Diciembre</p>
+                    </div>
+                </div>
+                <div class="info-item flex items-start space-x-4">
+                    <div class="p-2 rounded-full icon-gold"><i data-lucide="graduation-cap" class="w-6 h-6"></i></div>
+                    <div>
+                        <p class="text-xs text-[#D4AF37] uppercase tracking-widest font-bold mb-1">Acto de Promoción</p>
+                        <p class="text-lg text-cream font-medium">16:30 hrs.</p>
+                        <p class="text-sm text-cream-dim mt-1">Colegio Adela Zamudio<br><span class="text-xs italic opacity-70">Av. Humboldt y Capitán Víctor Ustariz, Cochabamba</span></p>
+                    </div>
+                </div>
+                <div class="info-item flex items-start space-x-4">
+                    <div class="p-2 rounded-full icon-gold"><i data-lucide="party-popper" class="w-6 h-6"></i></div>
+                    <div>
+                        <p class="text-xs text-[#D4AF37] uppercase tracking-widest font-bold mb-1">Cena Familiar</p>
+                        <p class="text-base text-cream leading-snug">
+                            Av. D'Orbigny casi Calle Irigoyen
+                        </p>
+                        <p class="text-xs text-cream-dim mt-1 leading-relaxed italic">
+                            (Acera Norte, frente al Salón de Eventos "7 Estrellas")
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-6 flex flex-col gap-3 w-full max-w-xs animate-up delay-500 mx-auto z-50">
+                <a href="https://www.google.com/maps/search/?api=1&query=Colegio+Adela+Zamudio+Cochabamba" target="_blank" class="btn-gold px-4 py-3 rounded-full text-xs w-full inline-flex items-center justify-center gap-2 transform active:scale-95 transition-transform">
+                    <i data-lucide="map-pin" class="w-4 h-4"></i> Ver Mapa del Colegio
+                </a>
+                <a href="https://maps.app.goo.gl/vGLyYTqqcTxjVRvH7" target="_blank" class="btn-gold px-4 py-3 rounded-full text-xs w-full inline-flex items-center justify-center gap-2 transform active:scale-95 transition-transform">
+                    <i data-lucide="party-popper" class="w-4 h-4"></i> Ver Mapa de la Cena Familiar
+                </a>
+            </div>
+        </section>
+
+        <section class="section" id="sec-4">
+            <div class="animate-scale icon-pulse mb-8">
+                <i data-lucide="heart" class="w-14 h-14 fill-[#D4AF37] text-[#D4AF37] filter drop-shadow-[0_0_10px_rgba(212,175,55,0.5)]"></i>
+            </div>
+            <h2 class="font-serif text-3xl md:text-4xl mb-6 leading-relaxed animate-up delay-100 font-bold text-cream">
+                Te esperamos con<br><span class="text-gold">mucho cariño</span>
+            </h2>
+            <p class="font-serif text-lg text-cream-dim mb-8 animate-up delay-200 px-6 max-w-md leading-relaxed font-light">
+                "Tu presencia es el regalo más valioso para nosotros en este día tan especial."
+            </p>
+            <div class="font-script text-4xl text-gold mb-8 animate-scale delay-500 py-2 border-t border-b border-[#D4AF37]/30 w-full max-w-xs mx-auto">
+                Muchas Gracias<br> Por tú Presencia
+            </div>
+            <button onclick="scrollToTop()" class="mt-4 text-xs text-[#D4AF37] border border-[#D4AF37]/50 px-6 py-2 rounded-full hover:bg-[#D4AF37]/10 transition-all animate-up delay-700 flex items-center mx-auto uppercase tracking-widest z-50 cursor-pointer">
+                <i data-lucide="arrow-up" class="w-3 h-3 mr-2"></i> Volver al Inicio
+            </button>
+        </section>
+
+    </div>
+
+    <script>
+        lucide.createIcons();
+        let isMusicPlaying = false;
+        const audio = document.getElementById('bg-music');
+        
+        const canvas = document.getElementById('canvas-bg');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        
+        function resizeCanvas() {
+            canvas.width = document.getElementById('background-wrapper').clientWidth;
+            canvas.height = document.getElementById('background-wrapper').clientHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor(type) { this.reset(type, true); }
+            
+            reset(type, initial = false) {
+                this.type = type;
+                this.x = Math.random() * canvas.width;
+                // Ajustar posición inicial para que no aparezcan de golpe
+                this.y = initial ? Math.random() * canvas.height : (type === 'balloon' ? canvas.height + 20 : -20);
+                
+                if (type === 'snow') {
+                    this.size = Math.random() * 3 + 1;
+                    this.speedY = Math.random() * 1 + 0.5;
+                    this.speedX = Math.random() * 0.5 - 0.25;
+                    this.color = `rgba(255, 255, 255, ${Math.random() * 0.5 + 0.3})`;
+                } else if (type === 'star') {
+                    this.size = Math.random() * 6 + 2; 
+                    this.speedY = Math.random() * 0.3 + 0.1;
+                    this.speedX = Math.random() * 0.2 - 0.1;
+                    this.opacity = Math.random();
+                    this.blinkSpeed = Math.random() * 0.03 + 0.01;
+                } else if (type === 'cap') {
+                    this.size = Math.random() * 20 + 20; 
+                    this.speedY = Math.random() * 1.5 + 1;
+                    this.speedX = Math.random() * 1 - 0.5;
+                    this.rotation = Math.random() * 0.1 - 0.05;
+                    this.angle = Math.random() * Math.PI * 2;
+                } else if (type === 'balloon') {
+                    this.size = Math.random() * 20 + 15;
+                    this.speedY = -(Math.random() * 2 + 1); 
+                    this.speedX = Math.random() * 0.5 - 0.25;
+                } else if (type === 'confetti') {
+                    this.size = Math.random() * 8 + 4; 
+                    this.speedY = Math.random() * 3 + 2; 
+                    this.speedX = Math.random() * 2 - 1;
+                    this.rotation = Math.random() * 360;
+                    this.rotationSpeed = Math.random() * 10 - 5;
+                    const colors = ['#D4AF37', '#F9E58C', '#FFFFFF', '#FF69B4', '#4169E1'];
+                    this.color = colors[Math.floor(Math.random() * colors.length)];
+                }
+            }
+
+            update() {
+                this.y += this.speedY; this.x += this.speedX;
+                if (this.type === 'confetti') this.rotation += this.rotationSpeed;
+                if (this.type === 'star') {
+                    this.opacity += this.blinkSpeed;
+                    if(this.opacity > 1 || this.opacity < 0.2) this.blinkSpeed *= -1;
+                }
+                if (this.type === 'cap') this.angle += this.rotation;
+
+                if (this.y > canvas.height + 50 || this.y < -50 || this.x < -50 || this.x > canvas.width + 50) {
+                    this.reset(this.type);
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                
+                if (this.type === 'snow') {
+                    ctx.fillStyle = this.color;
+                    ctx.beginPath(); ctx.arc(0, 0, this.size, 0, Math.PI * 2); ctx.fill();
+                } else if (this.type === 'star') {
+                    // Dibujar estrella a mano para visibilidad garantizada
+                    ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                    ctx.shadowBlur = 10; ctx.shadowColor = "white";
+                    ctx.beginPath();
+                    for(let i=0; i<5; i++){
+                        ctx.lineTo(Math.cos((18+i*72)/180*Math.PI)*this.size, -Math.sin((18+i*72)/180*Math.PI)*this.size);
+                        ctx.lineTo(Math.cos((54+i*72)/180*Math.PI)*(this.size/2), -Math.sin((54+i*72)/180*Math.PI)*(this.size/2));
+                    }
+                    ctx.closePath(); ctx.fill();
+                } else if (this.type === 'cap') {
+                    // Usar Emoji pero con fuente grande y visible
+                    ctx.font = `${this.size}px serif`;
+                    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                    ctx.rotate(this.angle);
+                    ctx.fillText('🎓', 0, 0);
+                } else if (this.type === 'balloon') {
+                    ctx.font = `${this.size}px serif`;
+                    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                    ctx.fillText('🎈', 0, 0);
+                } else if (this.type === 'confetti') {
+                    ctx.rotate((this.rotation * Math.PI) / 180);
+                    ctx.fillStyle = this.color;
+                    ctx.fillRect(-this.size/2, -this.size/2, this.size, this.size);
+                }
+                ctx.restore();
+            }
+        }
+
+        function initParticles(types, count) {
+            particles = []; 
+            for (let i = 0; i < count; i++) {
+                particles.push(new Particle(types[Math.floor(Math.random() * types.length)]));
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animate);
+        }
+
+        // CONTROL DE SECCIONES Y FONDO
+        function updateBackground(index) {
+            // Fondo de imagen
+            document.querySelectorAll('.bg-layer').forEach(el => el.classList.remove('active'));
+            document.getElementById(`bg-${index}`).classList.add('active');
+            
+            // Partículas
+            if (index === 1) initParticles(['snow', 'star'], 50); 
+            else if (index === 2) initParticles(['cap', 'star'], 30);
+            else if (index === 3) initParticles(['balloon', 'confetti'], 40); 
+            else if (index === 4) initParticles(['star', 'snow'], 50);
+        }
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    const index = parseInt(entry.target.id.split('-')[1]);
+                    updateBackground(index);
+                    
+                    const hint = document.getElementById('scroll-hint');
+                    if(index > 1) hint.style.opacity = '0';
+                    else if(index === 1 && document.getElementById('start-screen').style.display === 'none') hint.style.opacity = '0.7';
+                }
+            });
+        }, { threshold: 0.5, root: document.getElementById('app-container') });
+
+        document.querySelectorAll('.section').forEach(section => observer.observe(section));
+
+        // INICIO
+        function startExperience() {
+            const startScreen = document.getElementById('start-screen');
+            startScreen.style.opacity = '0';
+            setTimeout(() => {
+                startScreen.style.display = 'none';
+                document.getElementById('music-control').style.display = 'flex';
+                document.getElementById('scroll-hint').style.opacity = '0.7';
+                
+                // Asegurar renderizado
+                resizeCanvas();
+                animate();
+                updateBackground(1);
+                
+                audio.volume = 0;
+                audio.play().then(() => {
+                    isMusicPlaying = true; 
+                    let vol = 0;
+                    const interval = setInterval(() => { if (vol < 0.6) { vol += 0.05; audio.volume = vol; } else clearInterval(interval); }, 200);
+                }).catch(() => {});
+            }, 800);
+        }
+
+        function toggleMusic() {
+            const icon = document.getElementById('music-icon');
+            if (isMusicPlaying) { audio.pause(); icon.setAttribute('data-lucide', 'volume-x'); }
+            else { audio.play(); icon.setAttribute('data-lucide', 'volume-2'); }
+            lucide.createIcons(); isMusicPlaying = !isMusicPlaying;
+        }
+
+        function scrollToTop() {
+            document.getElementById('sec-1').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
