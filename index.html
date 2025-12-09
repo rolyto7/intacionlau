@@ -37,12 +37,12 @@
         }
         #app-container::-webkit-scrollbar { display: none; }
 
-        /* CORRECCIÓN: Fondo Sticky que sigue al scroll */
+        /* Fondo Sticky */
         #background-wrapper {
             position: sticky; top: 0; left: 0;
             width: 100%; height: 100dvh;
             z-index: 0; overflow: hidden; pointer-events: none;
-            margin-bottom: -100dvh; /* Permite que las secciones suban y lo cubran */
+            margin-bottom: -100dvh;
         }
 
         #canvas-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; }
@@ -73,7 +73,7 @@
         }
         .section.active { opacity: 1; transform: scale(1); filter: blur(0); }
 
-        /* Animaciones */
+        /* Animaciones Generales */
         .animate-up { opacity: 0; transform: translateY(30px); transition: all 1.2s cubic-bezier(0.22, 1, 0.36, 1); }
         .section.active .animate-up { opacity: 1; transform: translateY(0); }
         .animate-scale { opacity: 0; transform: scale(0.9); transition: all 1.2s cubic-bezier(0.22, 1, 0.36, 1); }
@@ -81,8 +81,17 @@
         .delay-100 { transition-delay: 0.1s; } .delay-200 { transition-delay: 0.2s; }
         .delay-300 { transition-delay: 0.3s; } .delay-500 { transition-delay: 0.5s; } .delay-700 { transition-delay: 0.7s; }
 
+        /* Animación Especial BIRRETE REALISTA */
+        @keyframes float-cap-real {
+            0%, 100% { transform: translateY(0) rotate(-2deg) scale(1); }
+            50% { transform: translateY(-10px) rotate(2deg) scale(1.02); }
+        }
+        .animate-float-cap {
+            animation: float-cap-real 4.5s ease-in-out infinite;
+        }
+
         /* Colores */
-        .text-gold { background: linear-gradient(to bottom right, #F9E58C, #D4AF37, #debb46, #EAC968); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
+        .text-gold { background: linear-gradient(to bottom right, #F9E58C, #D4AF37, #debb46, #EAC968); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: transparent; filter: drop-shadow(0 2px 4px rgba(73, 32, 209, 0.5)); }
         .text-cream { color: #F5F5DC; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
         .text-cream-dim { color: rgba(245, 245, 220, 0.7); }
 
@@ -118,7 +127,7 @@
         @keyframes float-intense { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
         /* UI */
-        #start-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100dvh; z-index: 100; background: rgba(5,5,5,0.98); display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        #start-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100dvh; z-index: 100; background: rgba(18, 4, 56, 0.98); display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .ui-controls { position: fixed; bottom: 20px; right: 20px; z-index: 90; }
         .scroll-hint { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 80; color: #F9E58C; opacity: 0; animation: bounce 2s infinite; pointer-events: none; display: flex; flex-direction: column; align-items: center; font-size: 0.75rem; transition: opacity 0.5s; }
         @keyframes bounce { 0%, 100% {transform: translateX(-50%) translateY(0);} 50% {transform: translateX(-50%) translateY(10px);} }
@@ -128,7 +137,7 @@
 
     <div id="app-container">
         
-        <!-- FONDO FIJO (Sticky para que no scrollee) -->
+        <!-- FONDO FIJO -->
         <div id="background-wrapper">
             <div class="bg-layer bg-img-1" id="bg-1"></div>
             <div class="bg-layer bg-img-2" id="bg-2"></div>
@@ -141,16 +150,26 @@
             <source src="https://cdn.pixabay.com/download/audio/2022/10/14/audio_9939f792cb.mp3?filename=soft-piano-123982.mp3" type="audio/mpeg">
         </audio>
 
-        <!-- PANTALLA INICIO -->
+        <!-- PANTALLA INICIO (MODIFICADA CON BIRRETE REALISTA) -->
         <div id="start-screen" class="transition-opacity duration-1000">
-            <div class="mb-8 icon-pulse">
-                <i data-lucide="graduation-cap" class="w-24 h-24 text-gold mx-auto"></i>
+            
+            <!-- NUEVO: Birrete 3D Estilo Ejemplo (Pequeño y Nítido) -->
+            <div class="mb-4 relative group">
+                <!-- Resplandor Dorado Sutil detrás -->
+                <div class="absolute -inset-4 bg-gradient-to-tr from-[#D4AF37] via-[#F9E58C] to-[#AA8925] rounded-full opacity-30 blur-2xl animate-pulse"></div>
+                <!-- Imagen del Birrete 3D (Fuente confiable Icons8) -->
+                <!-- CAMBIO: URL 100% estable de Icons8 3D Fluency, tamaño pequeño w-32 (aprox 128px) -->
+                <img src="https://img.icons8.com/3d-fluency/375/graduation-cap.png" 
+                     alt="Birrete de Graduación Realista" 
+                     onerror="this.src='https://cdn-icons-png.flaticon.com/512/2997/2997328.png'"
+                     class="w-32 h-32 object-contain relative z-10 animate-float-cap drop-shadow-[0_15px_15px_rgba(0,0,0,0.6)]">
             </div>
-            <!-- CAMBIO AQUÍ: Fuente script (cursiva) y color dorado -->
-            <h1 class="font-script text-6xl text-gold mb-6 tracking-wide text-center leading-tight p-2">
+
+            <h1 class="font-script text-6xl text-gold mb-6 tracking-wide text-center leading-tight p-2 drop-shadow-lg">
                 Invitación al Acto de<br>Promoción
             </h1>
             <p class="text-cream-dim text-sm mb-10 font-light tracking-widest uppercase text-center px-4">De: Laura Alejandra</p>
+            
             <button onclick="startExperience()" class="btn-gold px-12 py-4 rounded-full text-sm cursor-pointer z-50 relative">
                 ABRIR INVITACIÓN
             </button>
@@ -280,12 +299,12 @@
             reset(type, initial = false) {
                 this.type = type;
                 this.x = Math.random() * canvas.width;
-                // Ajustar posición inicial para que no aparezcan de golpe
                 this.y = initial ? Math.random() * canvas.height : (type === 'balloon' ? canvas.height + 20 : -20);
                 
                 if (type === 'snow') {
                     this.size = Math.random() * 3 + 1;
-                    this.speedY = Math.random() * 1 + 0.5;
+                    // VELOCIDAD REDUCIDA: Nieve cayendo suavemente
+                    this.speedY = Math.random() * 0.6 + 0.2;
                     this.speedX = Math.random() * 0.5 - 0.25;
                     this.color = `rgba(255, 255, 255, ${Math.random() * 0.5 + 0.3})`;
                 } else if (type === 'star') {
@@ -302,14 +321,16 @@
                     this.angle = Math.random() * Math.PI * 2;
                 } else if (type === 'balloon') {
                     this.size = Math.random() * 20 + 15;
-                    this.speedY = -(Math.random() * 2 + 1); 
-                    this.speedX = Math.random() * 0.5 - 0.25;
+                    // VELOCIDAD REDUCIDA: Ahora flotan suavemente hacia arriba
+                    this.speedY = -(Math.random() * 0.8 + 0.4); 
+                    this.speedX = Math.random() * 0.4 - 0.2;
                 } else if (type === 'confetti') {
                     this.size = Math.random() * 8 + 4; 
-                    this.speedY = Math.random() * 3 + 2; 
-                    this.speedX = Math.random() * 2 - 1;
+                    // VELOCIDAD REDUCIDA: Mixtura cayendo despacio
+                    this.speedY = Math.random() * 1.5 + 1; 
+                    this.speedX = Math.random() * 1 - 0.5;
                     this.rotation = Math.random() * 360;
-                    this.rotationSpeed = Math.random() * 10 - 5;
+                    this.rotationSpeed = Math.random() * 4 - 2;
                     const colors = ['#D4AF37', '#F9E58C', '#FFFFFF', '#FF69B4', '#4169E1'];
                     this.color = colors[Math.floor(Math.random() * colors.length)];
                 }
@@ -337,7 +358,6 @@
                     ctx.fillStyle = this.color;
                     ctx.beginPath(); ctx.arc(0, 0, this.size, 0, Math.PI * 2); ctx.fill();
                 } else if (this.type === 'star') {
-                    // Dibujar estrella a mano para visibilidad garantizada
                     ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
                     ctx.shadowBlur = 10; ctx.shadowColor = "white";
                     ctx.beginPath();
@@ -347,7 +367,6 @@
                     }
                     ctx.closePath(); ctx.fill();
                 } else if (this.type === 'cap') {
-                    // Usar Emoji pero con fuente grande y visible
                     ctx.font = `${this.size}px serif`;
                     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
                     ctx.rotate(this.angle);
@@ -380,11 +399,9 @@
 
         // CONTROL DE SECCIONES Y FONDO
         function updateBackground(index) {
-            // Fondo de imagen
             document.querySelectorAll('.bg-layer').forEach(el => el.classList.remove('active'));
             document.getElementById(`bg-${index}`).classList.add('active');
             
-            // Partículas
             if (index === 1) initParticles(['snow', 'star'], 50); 
             else if (index === 2) initParticles(['cap', 'star'], 30);
             else if (index === 3) initParticles(['balloon', 'confetti'], 40); 
@@ -416,7 +433,6 @@
                 document.getElementById('music-control').style.display = 'flex';
                 document.getElementById('scroll-hint').style.opacity = '0.7';
                 
-                // Asegurar renderizado
                 resizeCanvas();
                 animate();
                 updateBackground(1);
